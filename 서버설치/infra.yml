@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    ports:
+      - 3306:3306
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      - MYSQL_DATABASE=tuja-haja
+      - MYSQL_ROOT_PASSWORD=tujahaja
+      - MYSQL_USER=tuja
+      - MYSQL_PASSWORD=haja
+    volumes:
+      - ../mysql/config:/etc/mysql/conf.d
+      - ../mysql/data:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --port 6379
+    volumes:
+      - ../redis/data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 4g
