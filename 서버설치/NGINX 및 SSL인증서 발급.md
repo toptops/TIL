@@ -63,6 +63,7 @@ server {
     ssl_certificate /etc/letsencrypt/live/your_domain/fullchain.pem
     ssl_certificate_key /etc/letsencrypt/live/your_domain/privkey.pem
     include /etc/letsencrypt/option-ssl-nginx.conf;
+    /etc/letsencrypt
     ssl_dhparam /etc/letsencrypt/ssl-dhparam.pem;
 
     location / {
