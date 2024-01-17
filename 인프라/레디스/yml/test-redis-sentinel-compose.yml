@@ -1,0 +1,67 @@
+version: "3.8"
+
+networks:
+  redis-network:
+    driver: bridge
+
+services:
+  redis-master:
+    image: bitnami/redis:latest
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=1234
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    networks:
+      - redis-network
+    ports:
+      - 43679:6379
+    container_name: test-redis-master
+
+  redis-slave-1:
+    image: bitnami/redis:latest
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=test-redis-master
+      - REDIS_MASTER_PASSWORD=1234
+      - REDIS_PASSWORD=1234
+    networks:
+      - redis-network
+    ports:
+      - 43680:6379
+    depends_on:
+      - redis-master
+    container_name: test-salve-1
+
+  redis-slave-2:
+    image: bitnami/redis:latest
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=test-redis-master
+      - REDIS_MASTER_PASSWORD=1234
+      - REDIS_PASSWORD=1234
+    networks:
+      - redis-network
+    ports:
+      - 43681:6379
+    depends_on:
+      - redis-master
+    container_name: test-salve-2
+
+  redis-sentinel:
+    image: bitnami/redis-sentinel:latest
+    environment:
+      - REDIS_SENTINEL_DOWN_AFTER_MILLISECONDS=3000
+      - REDIS_MASTER_HOST=test-redis-master
+      - REDIS_MASTER_PORT_NUMBER=6379
+      - REDIS_MASTER_SET=test-master
+      - REDIS_MASTER_PASSWORD=1234
+      - REDIS_SENTINEL_PASSWORD=1234
+      - REDIS_SENTINEL_QUORUM=2
+    depends_on:
+      - redis-master
+      - redis-slave-1
+      - redis-slave-2
+    ports:
+      - '44001-44003:26379'
+    networks:
+      - redis-network
