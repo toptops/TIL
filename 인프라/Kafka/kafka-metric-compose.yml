@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  kafka-exporter:
+    image: danielqsj/kafka-exporter
+    command: ["--kafka.server=192.168.0.2:29092","--kafka.server=192.168.0.2:29093", "--kafka.server=192.168.0.2:29094", "--zookeeper.server=192.168.0.2:22181","--zookeeper.server=192.168.0.2:22182","--zookeeper.server=192.168.0.2:22183"]
+    ports:
+      - 29997:9308
