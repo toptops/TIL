@@ -27,5 +27,20 @@
 - START SLAVE; 를 실행하여 복제 실행 후 SHOW SLAVE STATUS\G 명령어를 통해 상태를 체크한다.
     - 주로 봐야될건 Slave_IO_Running과 Slave_SQL_Running 'Yes'인지 확인하면 된다.
 
-# mysql 모니터링 구성
+## mysql 모니터링 구성
 - mysql exporter + 프로메테우스 + 그라파나를 연동하여 모니터링 구성
+- mysql 계정 생성와 mysql 환경 설정이 필요하다.
+    - 먼저 환경설정은 docker compose 환경설정 부분에 '- --performance-schema=1'를 추가하거나 mysql.cnf파일에 'performance_schema=ON' 설정이 필요하다.
+    - 이후 계정을 생성하는데 이때 내부 도커에 올라간 서버이면 inspect를 통해 ip를 확인 후 계정을 생성한다
+        - CREATE USER 'exporter'@'외/내부 ip or ' IDENTIFIED BY 'XXXXXXXX';
+        - GRANT PROCESS, REPLICATION CLIENT ON *.* TO 'exporter'@'외/내부 ip';
+        - GRANT SELECT ON performance_schema.* TO 'exporter'@'외/내부 ip';
+- mysql exporter를 설치한다. 
+    - 옵션이 변경되어서 yml을 참고하길 바란다. 
+- exporter docker compose ip설정할때 외부 ip면 방화벽을 확인하면 되고 내부적으로 테스트용도면 위에서 확인한 ip를 입력하면 된다.
+- 이후 프로메테우스 설정을 추가 해준 후 그라파나 대시보드를 추가하면 된다. (대시보드 id: 7362)
+
+## 추가 구성
+- 기존 mysql master에 slave구성을 추가하고 replication 모니터링을 추가로 구성했다.
+- 즉, mysql master,slave 모니터링 + replication(slave)를 구축하였다.(7371)
+- 후.. 기존 mysql 모니터링은 master slave 각각 움직여야되서 한번에 되는걸 찾아야겠다..
