@@ -1,0 +1,31 @@
+# mysql 설치
+
+## mysql
+- mysql는 master-slave 구조로 설치, master(write), slave(read) 
+    - CQRS패턴을 이용하여 R <=> CUD 분리
+- mysql 모니터링 또한 그라파나 이용예정(백업전략은 아직 미정)
+
+## mysql 구성 
+- 먼저 도커 컴포즈를 통해서 msater, slave mysql을 구성한다. 환경 변수로 아래 3가지를 추가하고 실행한다.
+    - --server-id=1
+    - --log-bin=mysql-bin
+    - --binlog-format=ROW
+    - --default-authentication-plugin=mysql_native_password
+- 실행 후 복제 설정을 위해 마스터 mysql 서버에서 사용자 계정을 생성하고 권한을 부여한다
+    - CREATE USER 'replicator'@'%' IDENTIFIED BY 'replicationpassword';
+    - GRANT REPLICATION SLAVE ON *.* TO 'replicator'@'%';
+    - FLUSH PRIVILEGES;
+- 이후 SHOW MASTER STATUS; 명령어를 검색하여 '로그파일명'과 'log_pos'번호를 확인한다.
+- 위 2가지 활동 후 slave 서버로 접속하여 아래 명령어 데이터를 채운 후 실행한다.
+    - CHANGE MASTER TO
+        MASTER_HOST='master_server_ip',
+        MASTER_PORT=port(default는 3306)
+        MASTER_USER='replicator',
+        MASTER_PASSWORD='replicationpassword',
+        MASTER_LOG_FILE='마스터 조회한 로그 파일 이름',
+        MASTER_LOG_POS=마스터 조회한 log_post;
+- START SLAVE; 를 실행하여 복제 실행 후 SHOW SLAVE STATUS\G 명령어를 통해 상태를 체크한다.
+    - 주로 봐야될건 Slave_IO_Running과 Slave_SQL_Running 'Yes'인지 확인하면 된다.
+
+# mysql 모니터링 구성
+- mysql exporter + 프로메테우스 + 그라파나를 연동하여 모니터링 구성

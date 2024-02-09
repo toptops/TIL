@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  mysql-master:
+    image: mysql:latest
+    container_name: mysql-master
+    ports:
+      - "23306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_USER: toptops
+      MYSQL_PASSWORD: 1234
+      TZ: Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --server-id=1
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ../mysql/data1:/var/lib/mysql
+    networks:
+      - mysql-network
+
+  mysql-slave:
+    image: mysql:latest
+    container_name: mysql-slave
+    ports:
+      - "23307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_USER: toptops
+      MYSQL_PASSWORD: 1234
+      TZ: Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --server-id=2
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --default-authentication-plugin=mysql_native_password
+      - --replicate-do-db=mydatabase
+    depends_on:
+      - mysql-master
+    volumes:
+      - ../mysql/data2:/var/lib/mysql
+    networks:
+      - mysql-network
+
+networks:
+  mysql-network:
+    driver: bridge
