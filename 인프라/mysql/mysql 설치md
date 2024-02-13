@@ -43,4 +43,4 @@
 ## 추가 구성
 - 기존 mysql master에 slave구성을 추가하고 replication 모니터링을 추가로 구성했다.
 - 즉, mysql master,slave 모니터링 + replication(slave)를 구축하였다.(7371)
-- 후.. 기존 mysql 모니터링은 master slave 각각 움직여야되서 한번에 되는걸 찾아야겠다..
+- 후.. 기존 mysql 모니터링은 master slave 각각 움직여야되서 한번에 구성을 찾아야겠다...
